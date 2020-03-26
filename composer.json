@@ -30,9 +30,9 @@
   "require": {
     "php": ">=7.3",
     "composer/installers": "^1.0",
-    "dragonmantank/cron-expression": "^2.2",
-    "filp/whoops": "^2.1",
-    "guzzlehttp/guzzle": "^6.3",
+    "dragonmantank/cron-expression": "^2.0",
+    "filp/whoops": "^2.4",
+    "guzzlehttp/guzzle": "^6.3.1|^7.0",
     "illuminate/auth": "^7.3",
     "illuminate/broadcasting": "^7.3",
     "illuminate/bus": "^7.3",
@@ -70,10 +70,10 @@
   "require-dev": {
     "beyondcode/laravel-dump-server": "^1.4",
     "friendsofphp/php-cs-fixer": "^2.15",
-    "phpstan/phpstan-shim": "^0.11.8",
+    "phpstan/phpstan": "^0.12",
     "phpunit/phpunit": "^7.0",
     "symfony/var-dumper": "^5.0",
-    "szepeviktor/phpstan-wordpress": "^0.3"
+    "szepeviktor/phpstan-wordpress": "^0.6.0"
   },
   "suggest": {
     "fzaninotto/faker": "Required to use the eloquent factory builder (^1.8)."
