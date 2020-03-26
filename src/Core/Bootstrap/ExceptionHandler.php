@@ -9,6 +9,7 @@ use Illuminate\Contracts\Foundation\Application;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Debug\Exception\FatalErrorException;
 use Symfony\Component\Debug\Exception\FatalThrowableError;
+use Throwable;
 
 class ExceptionHandler
 {
@@ -55,7 +56,7 @@ class ExceptionHandler
     /**
      * Handle an uncaught exception from the application.
      *
-     * @param \Throwable $e
+     * @param Throwable $e
      */
     public function handleException($e)
     {
@@ -121,9 +122,9 @@ class ExceptionHandler
     /**
      * Render an exception to the console.
      *
-     * @param Exception $e
+     * @param Throwable $e
      */
-    protected function renderForConsole(Exception $e)
+    protected function renderForConsole(Throwable $e)
     {
         $this->getExceptionHandler()->renderForConsole(new ConsoleOutput(), $e);
     }
@@ -131,9 +132,9 @@ class ExceptionHandler
     /**
      * Render an exception as an HTTP Response and send it.
      *
-     * @param Exception $e
+     * @param Throwable $e
      */
-    protected function renderHttpResponse(Exception $e)
+    protected function renderHttpResponse(Throwable $e)
     {
         $this->getExceptionHandler()->render($this->app['request'], $e)->send();
     }
