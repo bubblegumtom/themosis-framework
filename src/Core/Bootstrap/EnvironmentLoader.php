@@ -4,6 +4,7 @@ namespace Themosis\Core\Bootstrap;
 
 use Dotenv\Dotenv;
 use Dotenv\Exception\InvalidFileException;
+use Dotenv\Repository\RepositoryBuilder;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Env;
 use Symfony\Component\Console\Input\ArgvInput;
@@ -85,10 +86,14 @@ class EnvironmentLoader
      */
     protected function createDotenv($app)
     {
+        $repository = RepositoryBuilder::create()
+            ->immutable()
+            ->make();
+
         return Dotenv::create(
+            $repository,
             $app->environmentPath(),
-            $app->environmentFile(),
-            Env::getFactory()
+            $app->environmentFile()
         );
     }
 
