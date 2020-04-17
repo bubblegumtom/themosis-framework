@@ -19,12 +19,7 @@ class EnvironmentLoader
      * @var array
      */
     protected $required = [
-        'DATABASE_NAME',
-        'DATABASE_USER',
-        'DATABASE_PASSWORD',
-        'DATABASE_HOST',
-        'APP_URL',
-        'WP_URL'
+
     ];
 
     /**
