@@ -22,6 +22,11 @@ class ExceptionHandler
     {
         $this->app = $app;
 
+        // Allow for completely disabling themosis error handler
+        if (defined('DISABLE_THEMOSIS_ERROR_HANDLING') && DISABLE_THEMOSIS_ERROR_HANDLING) {
+            return;
+        }
+
         error_reporting(-1);
 
         set_error_handler([$this, 'handleError']);
