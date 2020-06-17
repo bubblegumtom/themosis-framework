@@ -7,25 +7,41 @@ use Exception;
 use Illuminate\Contracts\Debug\ExceptionHandler as ExceptionHandlerContract;
 use Illuminate\Contracts\Foundation\Application;
 use Symfony\Component\Console\Output\ConsoleOutput;
-use Symfony\Component\Debug\Exception\FatalErrorException;
-use Symfony\Component\Debug\Exception\FatalThrowableError;
+use Symfony\Component\ErrorHandler\Error\FatalError;
 use Throwable;
 
 class ExceptionHandler
 {
     /**
-     * @var Application
+     * Reserved memory so that errors can be displayed properly on memory exhaustion.
+     *
+     * @var string
+     */
+    public static $reservedMemory;
+
+    /**
+     * The application instance.
+     *
+     * @var \Illuminate\Contracts\Foundation\Application
      */
     protected $app;
 
+    /**
+     * Bootstrap the given application.
+     *
+     * @param  \Illuminate\Contracts\Foundation\Application  $app
+     * @return void
+     */
     public function bootstrap(Application $app)
     {
-        $this->app = $app;
-
         // Allow for completely disabling themosis error handler
         if (defined('DISABLE_THEMOSIS_ERROR_HANDLING') && DISABLE_THEMOSIS_ERROR_HANDLING) {
             return;
         }
+
+        self::$reservedMemory = str_repeat('x', 10240);
+
+        $this->app = $app;
 
         error_reporting(-1);
 
@@ -43,13 +59,14 @@ class ExceptionHandler
     /**
      * Convert PHP errors to ErrorException instances.
      *
-     * @param int    $level
-     * @param string $message
-     * @param string $file
-     * @param int    $line
-     * @param array  $context
+     * @param  int  $level
+     * @param  string  $message
+     * @param  string  $file
+     * @param  int  $line
+     * @param  array  $context
+     * @return void
      *
-     * @throws ErrorException
+     * @throws \ErrorException
      */
     public function handleError($level, $message, $file = '', $line = 0, $context = [])
     {
@@ -61,15 +78,18 @@ class ExceptionHandler
     /**
      * Handle an uncaught exception from the application.
      *
-     * @param Throwable $e
+     * Note: Most exceptions can be handled via the try / catch block in
+     * the HTTP and Console kernels. But, fatal error exceptions must
+     * be handled differently since they are not normal exceptions.
+     *
+     * @param  \Throwable  $e
+     * @return void
      */
-    public function handleException($e)
+    public function handleException(Throwable $e)
     {
-        if (! $e instanceof Exception) {
-            $e = new FatalThrowableError($e);
-        }
-
         try {
+            self::$reservedMemory = null;
+
             $this->getExceptionHandler()->report($e);
         } catch (Exception $e) {
             //
@@ -83,65 +103,60 @@ class ExceptionHandler
     }
 
     /**
+     * Render an exception to the console.
+     *
+     * @param  \Throwable  $e
+     * @return void
+     */
+    protected function renderForConsole(Throwable $e)
+    {
+        $this->getExceptionHandler()->renderForConsole(new ConsoleOutput, $e);
+    }
+
+    /**
+     * Render an exception as an HTTP response and send it.
+     *
+     * @param  \Throwable  $e
+     * @return void
+     */
+    protected function renderHttpResponse(Throwable $e)
+    {
+        $this->getExceptionHandler()->render($this->app['request'], $e)->send();
+    }
+
+    /**
      * Handle the PHP shutdown event.
+     *
+     * @return void
      */
     public function handleShutdown()
     {
         if (! is_null($error = error_get_last()) && $this->isFatal($error['type'])) {
-            $this->handleException($this->fatalExceptionFromError($error, 0));
+            $this->handleException($this->fatalErrorFromPhpError($error, 0));
         }
+    }
+
+    /**
+     * Create a new fatal error instance from an error array.
+     *
+     * @param  array  $error
+     * @param  int|null  $traceOffset
+     * @return \Symfony\Component\ErrorHandler\Error\FatalError
+     */
+    protected function fatalErrorFromPhpError(array $error, $traceOffset = null)
+    {
+        return new FatalError($error['message'], 0, $error, $traceOffset);
     }
 
     /**
      * Determine if the error type is fatal.
      *
-     * @param int $type
-     *
+     * @param  int  $type
      * @return bool
      */
     protected function isFatal($type)
     {
         return in_array($type, [E_COMPILE_ERROR, E_CORE_ERROR, E_ERROR, E_PARSE]);
-    }
-
-    /**
-     * Create a new fatal exception instance from an error array.
-     *
-     * @param array    $error
-     * @param int|null $traceOffset
-     *
-     * @return \Symfony\Component\Debug\Exception\FatalErrorException
-     */
-    protected function fatalExceptionFromError(array $error, $traceOffset = null)
-    {
-        return new FatalErrorException(
-            $error['message'],
-            $error['type'],
-            0,
-            $error['file'],
-            $error['line'],
-            $traceOffset
-        );
-    }
-
-    /**
-     * Render an exception to the console.
-     *
-     * @param Throwable $e
-     */
-    protected function renderForConsole(Throwable $e)
-    {
-        $this->getExceptionHandler()->renderForConsole(new ConsoleOutput(), $e);
-    }
-
-    /**
-     * Render an exception as an HTTP Response and send it.
-     *
-     * @param Throwable $e
-     */
-    protected function renderHttpResponse(Throwable $e)
-    {
-        $this->getExceptionHandler()->render($this->app['request'], $e)->send();
     }
 
     /**
