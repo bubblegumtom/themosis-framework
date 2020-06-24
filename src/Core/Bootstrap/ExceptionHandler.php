@@ -34,16 +34,16 @@ class ExceptionHandler
      */
     public function bootstrap(Application $app)
     {
-        // Allow for completely disabling themosis error handler
-        if (defined('DISABLE_THEMOSIS_ERROR_HANDLING') && DISABLE_THEMOSIS_ERROR_HANDLING) {
-            return;
-        }
-
         self::$reservedMemory = str_repeat('x', 10240);
 
         $this->app = $app;
 
         error_reporting(-1);
+
+        // Allow for completely disabling themosis error handler
+        if (defined('DISABLE_THEMOSIS_ERROR_HANDLING') && DISABLE_THEMOSIS_ERROR_HANDLING) {
+            return;
+        }
 
         set_error_handler([$this, 'handleError']);
 
