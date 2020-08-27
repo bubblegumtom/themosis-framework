@@ -124,7 +124,11 @@ class PluginsRepository
      */
     public function shouldRecompile($manifest, $directories)
     {
-        return is_null($manifest) || ! is_array($manifest) || array_keys($manifest) !== $directories;
+        if (($key = array_search('themosis-framework', $directories)) !== false) {
+            unset($directories[$key]);
+        }
+        
+        return is_null($manifest) || ! is_array($manifest) || array_keys($manifest) !== array_values($directories);
     }
 
     /**
