@@ -124,7 +124,7 @@ class PluginsRepository
      */
     public function shouldRecompile($manifest, $directories)
     {
-        return is_null($manifest) || array_keys($manifest) !== $directories;
+        return is_null($manifest) || ! is_array($manifest) || array_keys($manifest) !== $directories;
     }
 
     /**
