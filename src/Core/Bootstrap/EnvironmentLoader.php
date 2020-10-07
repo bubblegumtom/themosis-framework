@@ -6,7 +6,6 @@ use Dotenv\Dotenv;
 use Dotenv\Exception\InvalidFileException;
 use Dotenv\Repository\RepositoryBuilder;
 use Illuminate\Contracts\Foundation\Application;
-use Illuminate\Support\Env;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
@@ -86,7 +85,7 @@ class EnvironmentLoader
      */
     protected function createDotenv($app)
     {
-        $repository = RepositoryBuilder::create()
+        $repository = RepositoryBuilder::createWithNoAdapters()
             ->immutable()
             ->make();
 
