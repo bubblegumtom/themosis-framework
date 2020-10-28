@@ -1,5 +1,5 @@
-@extends('errors::layout')
+@extends('errors::minimal')
 
-@section('title', 'Error')
-
-@section('message', 'Whoops, looks like something went wrong.')
+@section('title', 'Server Error')
+@section('code', '500')
+@section('message', 'Server Error')
