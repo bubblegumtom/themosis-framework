@@ -1,6 +1,6 @@
 <?php
 
-namespace Illuminate\Foundation\Exceptions;
+namespace Themosis\Core\Exceptions;
 
 use Illuminate\Support\Facades\View;
 
@@ -8,7 +8,6 @@ class RegisterErrorViewPaths
 {
     /**
      * Register the error view paths.
-     *
      * @return void
      */
     public function __invoke()

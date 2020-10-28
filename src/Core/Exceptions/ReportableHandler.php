@@ -1,6 +1,6 @@
 <?php
 
-namespace Illuminate\Foundation\Exceptions;
+namespace Themosis\Core\Exceptions;
 
 use Illuminate\Support\Traits\ReflectsClosures;
 use Throwable;

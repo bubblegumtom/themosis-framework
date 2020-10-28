@@ -1,6 +1,6 @@
 <?php
 
-namespace Illuminate\Foundation\Exceptions;
+namespace Themosis\Core\Exceptions;
 
 use Closure;
 use Exception;
@@ -19,7 +19,6 @@ use Illuminate\Routing\Router;
 use Illuminate\Session\TokenMismatchException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\View;
 use Illuminate\Support\Traits\ReflectsClosures;
 use Illuminate\Support\ViewErrorBag;
 use Illuminate\Validation\ValidationException;
