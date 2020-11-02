@@ -24,6 +24,7 @@ class EventGenerateCommand extends Command
 
     /**
      * Execute the console command.
+     * @return void
      */
     public function handle()
     {
@@ -43,14 +44,16 @@ class EventGenerateCommand extends Command
      *
      * @param string $event
      * @param array  $listeners
+     * @return void
      */
-    protected function makeEventAndListeners($event, $listeners)
+	protected function makeEventAndListeners($event, $listeners)
     {
         if (! Str::contains($event, '\\')) {
             return;
         }
 
         $this->callSilent('make:event', ['name' => $event]);
+
         $this->makeListeners($event, $listeners);
     }
 
@@ -59,16 +62,16 @@ class EventGenerateCommand extends Command
      *
      * @param string $event
      * @param array  $listeners
+     * @return void
      */
-    protected function makeListeners($event, $listeners)
+	protected function makeListeners($event, $listeners)
     {
         foreach ($listeners as $listener) {
-            $listener = preg_replace('/@.+$/', '', $listener);
+	        $listener = preg_replace('/@.+$/', '', $listener);
 
-            $this->callSilent('make:listener', array_filter([
-                'name' => $listener,
-                '--event' => $event
-            ]));
+	        $this->callSilent('make:listener', array_filter(
+		        ['name' => $listener, '--event' => $event]
+	        ));
         }
     }
 }

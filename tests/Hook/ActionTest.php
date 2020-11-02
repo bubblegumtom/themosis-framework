@@ -11,7 +11,7 @@ class ActionTest extends TestCase
      */
     protected $app;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->app = new Application();
     }

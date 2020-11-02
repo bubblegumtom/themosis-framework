@@ -31,10 +31,7 @@ class ResourceMakeCommand extends GeneratorCommand
 
     /**
      * Execute the console command.
-     *
-     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
-     *
-     * @return bool|void|null
+     * @return void
      */
     public function handle()
     {
@@ -53,8 +50,8 @@ class ResourceMakeCommand extends GeneratorCommand
     protected function getStub()
     {
         return $this->collection()
-            ? __DIR__.'/stubs/resource-collection.stub'
-            : __DIR__.'/stubs/resource.stub';
+            ? $this->resolveStubPath('/stubs/resource-collection.stub')
+            : $this->resolveStubPath('/stubs/resource.stub');
     }
 
     /**
@@ -69,15 +66,25 @@ class ResourceMakeCommand extends GeneratorCommand
     }
 
     /**
+     * Resolve the fully-qualified path to the stub.
+     * @param string $stub
+     * @return string
+     */
+    protected function resolveStubPath($stub)
+    {
+        return file_exists($customPath = $this->laravel->basePath(trim($stub, '/')))
+            ? $customPath
+            : __DIR__ . $stub;
+    }
+
+    /**
      * Get the default namespace for the class.
-     *
      * @param string $rootNamespace
-     *
      * @return string
      */
     protected function getDefaultNamespace($rootNamespace)
     {
-        return $rootNamespace.'\Http\Resources';
+        return $rootNamespace . '\Http\Resources';
     }
 
     /**

@@ -4,6 +4,7 @@ namespace Themosis\Core\Console;
 
 use Illuminate\Console\Command;
 use Illuminate\Filesystem\Filesystem;
+use RuntimeException;
 
 class ViewClearCommand extends Command
 {
@@ -19,37 +20,43 @@ class ViewClearCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Clear all compiled view files';
+	protected $description = 'Clear all compiled view files';
 
-    /**
-     * @var Filesystem
-     */
-    protected $files;
+	/**
+	 * The filesystem instance.
+	 * @var \Illuminate\Filesystem\Filesystem
+	 */
+	protected $files;
 
-    public function __construct(Filesystem $files)
-    {
-        parent::__construct();
-        $this->files = $files;
-    }
+	/**
+	 * Create a new config clear command instance.
+	 * @param \Illuminate\Filesystem\Filesystem $files
+	 * @return void
+	 */
+	public function __construct(Filesystem $files)
+	{
+		parent::__construct();
 
-    /**
-     * Execute the console command.
-     */
-    public function handle()
-    {
-        $bladePath = $this->laravel['config']['view.compiled'];
-        $twigPath = $this->laravel['config']['view.twig'];
+		$this->files = $files;
+	}
 
-        if (! $bladePath || ! $twigPath) {
-            throw new \RuntimeException('View cache path not found.');
-        }
+	/**
+	 * Execute the console command.
+	 * @return void
+	 * @throws \RuntimeException
+	 */
+	public function handle()
+	{
+		$path = $this->laravel['config']['view.compiled'];
 
-        foreach ($this->files->glob("{$bladePath}/*.php") as $view) {
-            $this->files->delete($view);
-        }
+		if (!$path) {
+			throw new RuntimeException('View path not found.');
+		}
 
-        $this->files->deleteDirectories($twigPath);
+		foreach ($this->files->glob("{$path}/*") as $view) {
+			$this->files->delete($view);
+		}
 
-        $this->info('Compiled views cleared.');
-    }
+		$this->info('Compiled views cleared!');
+	}
 }

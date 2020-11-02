@@ -30,10 +30,7 @@ class NotificationMakeCommand extends GeneratorCommand
 
     /**
      * Execute the console command.
-     *
-     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
-     *
-     * @return bool|void|null
+     * @return void
      */
     public function handle()
     {
@@ -48,28 +45,29 @@ class NotificationMakeCommand extends GeneratorCommand
 
     /**
      * Write the Markdown template for the mailable.
+     *
+     * @return void
      */
-    protected function writeMarkdownTemplate()
+	protected function writeMarkdownTemplate()
     {
-        $path = resource_path('views/'.str_replace('.', '/', $this->option('markdown'))).'.blade.php';
+	    $path = $this->viewPath(
+		    str_replace('.', '/', $this->option('markdown')) . '.blade.php'
+	    );
 
-        if (! $this->files->isDirectory(dirname($path))) {
-            $this->files->makeDirectory(dirname($path), 0755, true);
-        }
+	    if (!$this->files->isDirectory(dirname($path))) {
+		    $this->files->makeDirectory(dirname($path), 0755, true);
+	    }
 
-        $this->files->put($path, file_get_contents(__DIR__.'/stubs/markdown.stub'));
+	    $this->files->put($path, file_get_contents(__DIR__ . '/stubs/markdown.stub'));
     }
 
-    /**
-     * Build the class (name) with the given name.
-     *
-     * @param string $name
-     *
-     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
-     *
-     * @return string|string[]
-     */
-    protected function buildClass($name)
+	/**
+	 * Build the class with the given name.
+	 *
+	 * @param string $name
+	 * @return string
+	 */
+	protected function buildClass($name)
     {
         $class = parent::buildClass($name);
 
@@ -88,18 +86,17 @@ class NotificationMakeCommand extends GeneratorCommand
     protected function getStub()
     {
         return $this->option('markdown')
-            ? __DIR__.'/stubs/markdown-notification.stub'
-            : __DIR__.'/stubs/notification.stub';
+	        ? __DIR__ . '/stubs/markdown-notification.stub'
+	        : __DIR__ . '/stubs/notification.stub';
     }
 
-    /**
-     * Get the default namespace for the class.
-     *
-     * @param string $rootNamespace
-     *
-     * @return string
-     */
-    protected function getDefaultNamespace($rootNamespace)
+	/**
+	 * Get the default namespace for the class.
+	 *
+	 * @param string $rootNamespace
+	 * @return string
+	 */
+	protected function getDefaultNamespace($rootNamespace)
     {
         return $rootNamespace.'\Notifications';
     }
@@ -112,8 +109,9 @@ class NotificationMakeCommand extends GeneratorCommand
     protected function getOptions()
     {
         return [
-            ['force', 'f', InputOption::VALUE_NONE, 'Create the class event if the notification already exists'],
-            ['markdown', 'm', InputOption::VALUE_OPTIONAL, 'Create a new Markdown template for the notification']
+	        ['force', 'f', InputOption::VALUE_NONE, 'Create the class even if the notification already exists'],
+
+	        ['markdown', 'm', InputOption::VALUE_OPTIONAL, 'Create a new Markdown template for the notification'],
         ];
     }
 }

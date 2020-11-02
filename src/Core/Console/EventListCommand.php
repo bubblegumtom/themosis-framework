@@ -9,8 +9,7 @@ use Themosis\Core\Support\Providers\EventServiceProvider;
 class EventListCommand extends Command
 {
     /**
-     * The console command name and signature.
-     *
+     * The name and signature of the console command.
      * @var string
      */
     protected $signature = 'event:list {--event= : Filter the events by name}';
@@ -24,57 +23,51 @@ class EventListCommand extends Command
 
     /**
      * Execute the console command.
+     *
+     * @return mixed
      */
-    public function handle()
+	public function handle()
     {
         $events = $this->getEvents();
 
         if (empty($events)) {
-            $this->error("Your application doesn't have any events matching the given criteria.");
-
-            return;
+            return $this->error("Your application doesn't have any events matching the given criteria.");
         }
 
         $this->table(['Event', 'Listeners'], $events);
     }
 
     /**
-     * Return all the events and listeners configured for the application.
+     * Get all of the events and listeners configured for the application.
      *
      * @return array
      */
-    protected function getEvents()
+	protected function getEvents()
     {
         $events = [];
 
         foreach ($this->laravel->getProviders(EventServiceProvider::class) as $provider) {
-            $providerEvents = array_merge_recursive($provider->discoverEvents(), $provider->listens());
-            $events = array_merge_recursive($events, $providerEvents);
+	        $providerEvents = array_merge_recursive($provider->shouldDiscoverEvents() ? $provider->discoverEvents() : [], $provider->listens());
+
+	        $events = array_merge_recursive($events, $providerEvents);
         }
 
-        if ($this->filteringByEvent()) {
+	    if ($this->filteringByEvent()) {
             $events = $this->filterEvents($events);
         }
 
         return collect($events)->map(function ($listeners, $event) {
-            return [
-                'Event' => $event,
-                'Listeners' => implode(PHP_EOL, $listeners)
-            ];
-        })
-            ->sortBy('Event')
-            ->values()
-            ->toArray();
+	        return ['Event' => $event, 'Listeners' => implode(PHP_EOL, $listeners)];
+        })->sortBy('Event')->values()->toArray();
     }
 
-    /**
-     * Filter the given events using the provided event name filter.
-     *
-     * @param array $events
-     *
-     * @return array
-     */
-    protected function filterEvents(array $events)
+	/**
+	 * Filter the given events using the provided event name filter.
+	 *
+	 * @param array $events
+	 * @return array
+	 */
+	protected function filterEvents(array $events)
     {
         if (! $eventName = $this->option('event')) {
             return $events;
@@ -86,11 +79,11 @@ class EventListCommand extends Command
     }
 
     /**
-     * Check whether the user is filtering by an event name.
+     * Determine whether the user is filtering by an event name.
      *
      * @return bool
      */
-    protected function filteringByEvent()
+	protected function filteringByEvent()
     {
         return ! empty($this->option('event'));
     }

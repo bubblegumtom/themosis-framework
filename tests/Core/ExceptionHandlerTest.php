@@ -39,7 +39,7 @@ class ExceptionHandlerTest extends TestCase
      */
     protected $config;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->container = Container::setInstance(new Container());
 

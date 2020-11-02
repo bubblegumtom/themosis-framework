@@ -8,8 +8,7 @@ use Themosis\Core\Support\Providers\EventServiceProvider;
 class EventCacheCommand extends Command
 {
     /**
-     * The console command name and signature.
-     *
+     * The name and signature of the console command.
      * @var string
      */
     protected $signature = 'event:cache';
@@ -23,8 +22,10 @@ class EventCacheCommand extends Command
 
     /**
      * Execute the console command.
+     *
+     * @return mixed
      */
-    public function handle()
+	public function handle()
     {
         $this->call('event:clear');
 
@@ -37,17 +38,18 @@ class EventCacheCommand extends Command
     }
 
     /**
-     * Return all of the events and listeners configured for the application.
+     * Get all of the events and listeners configured for the application.
      *
      * @return array
      */
-    protected function getEvents()
+	protected function getEvents()
     {
         $events = [];
 
         foreach ($this->laravel->getProviders(EventServiceProvider::class) as $provider) {
             $providerEvents = array_merge_recursive($provider->shouldDiscoverEvents() ? $provider->discoverEvents() : [], $provider->listens());
-            $events[get_class($provider)] = $providerEvents;
+
+	        $events[get_class($provider)] = $providerEvents;
         }
 
         return $events;

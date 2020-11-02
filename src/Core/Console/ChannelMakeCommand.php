@@ -29,12 +29,8 @@ class ChannelMakeCommand extends GeneratorCommand
 
     /**
      * Build the class with the given name.
-     *
      * @param string $name
-     *
-     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
-     *
-     * @return string|string[]
+     * @return string
      */
     protected function buildClass($name)
     {
@@ -59,10 +55,9 @@ class ChannelMakeCommand extends GeneratorCommand
      * Get the default namespace for the class.
      *
      * @param string $rootNamespace
-     *
      * @return string
      */
-    protected function getDefaultNamespace($rootNamespace)
+	protected function getDefaultNamespace($rootNamespace)
     {
         return $rootNamespace.'\Broadcasting';
     }

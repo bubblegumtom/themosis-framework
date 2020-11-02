@@ -20,7 +20,7 @@ class ConsoleMakeCommand extends GeneratorCommand
      *
      * @var string
      */
-    protected $description = 'Create a new console command';
+    protected $description = 'Create a new Artisan command';
 
     /**
      * The type of class being generated.
@@ -29,70 +29,63 @@ class ConsoleMakeCommand extends GeneratorCommand
      */
     protected $type = 'Console command';
 
-    /**
-     * Return the stub file path.
-     *
-     * @return string
-     */
-    protected function getStub()
-    {
-        return __DIR__.'/stubs/console.stub';
-    }
+	/**
+	 * Replace the class name for the given stub.
+	 * @param string $stub
+	 * @param string $name
+	 * @return string
+	 */
+	protected function replaceClass($stub, $name)
+	{
+		$stub = parent::replaceClass($stub, $name);
 
-    /**
-     * Replace the class name for the given stub.
-     *
-     * @param string $stub
-     * @param string $name
-     *
-     * @return string
-     */
-    protected function replaceClass($stub, $name)
-    {
-        $stub = parent::replaceClass($stub, $name);
+		return str_replace(['dummy:command', '{{ command }}'], $this->option('command'), $stub);
+	}
 
-        return str_replace('dummy:command', $this->option('command'), $stub);
-    }
+	/**
+	 * Get the stub file for the generator.
+	 * @return string
+	 */
+	protected function getStub()
+	{
+		$relativePath = '/stubs/console.stub';
 
-    /**
-     * Return the default namespace for the class.
-     *
-     * @param string $rootNamespace
-     *
-     * @return string
-     */
-    protected function getDefaultNamespace($rootNamespace)
-    {
+		return file_exists($customPath = $this->laravel->basePath(trim($relativePath, '/')))
+			? $customPath
+			: __DIR__ . $relativePath;
+	}
+
+	/**
+	 * Get the default namespace for the class.
+	 * @param string $rootNamespace
+	 * @return string
+	 */
+	protected function getDefaultNamespace($rootNamespace)
+	{
         return $rootNamespace.'\Console\Commands';
     }
 
     /**
-     * Return the console command arguments.
+     * Get the console command arguments.
      *
      * @return array
      */
-    protected function getArguments()
+	protected function getArguments()
     {
         return [
-            ['name', InputArgument::REQUIRED, 'The name of the command.']
+            ['name', InputArgument::REQUIRED, 'The name of the command'],
         ];
     }
 
-    /**
-     * Return the console command options.
-     *
-     * @return array
-     */
-    protected function getOptions()
+	/**
+	 * Get the console command options.
+	 *
+	 * @return array
+	 */
+	protected function getOptions()
     {
         return [
-            [
-                'command',
-                null,
-                InputOption::VALUE_OPTIONAL,
-                'The terminal command that should be assigned.',
-                'command:name'
-            ]
+            ['command', null, InputOption::VALUE_OPTIONAL, 'The terminal command that should be assigned', 'command:name'],
         ];
     }
 }

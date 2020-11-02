@@ -22,7 +22,6 @@ class ProviderMakeCommand extends GeneratorCommand
 
     /**
      * The type of class being generated.
-     * Used for the console status.
      *
      * @var string
      */
@@ -39,10 +38,8 @@ class ProviderMakeCommand extends GeneratorCommand
     }
 
     /**
-     * Return the default namespace for the class.
-     *
+     * Get the default namespace for the class.
      * @param string $rootNamespace
-     *
      * @return string
      */
     protected function getDefaultNamespace($rootNamespace)
