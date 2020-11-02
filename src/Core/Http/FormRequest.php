@@ -4,27 +4,29 @@ namespace Themosis\Core\Http;
 
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Contracts\Validation\Factory as ValidationFactory;
 use Illuminate\Contracts\Validation\ValidatesWhenResolved;
-use Illuminate\Contracts\Validation\Validator as ValidatorContract;
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Redirector;
-use Illuminate\Support\Str;
-use Illuminate\Validation\Factory as ValidationFactory;
 use Illuminate\Validation\ValidatesWhenResolvedTrait;
 use Illuminate\Validation\ValidationException;
-use Illuminate\Validation\Validator;
 
 class FormRequest extends Request implements ValidatesWhenResolved
 {
     use ValidatesWhenResolvedTrait;
 
     /**
-     * @var Container
+     * The container instance.
+     *
+     * @var \Illuminate\Contracts\Container\Container
      */
     protected $container;
 
     /**
-     * @var Redirector
+     * The redirector instance.
+     *
+     * @var \Illuminate\Routing\Redirector
      */
     protected $redirector;
 
@@ -57,14 +59,23 @@ class FormRequest extends Request implements ValidatesWhenResolved
     protected $errorBag = 'default';
 
     /**
+     * The validator instance.
+     *
+     * @var \Illuminate\Contracts\Validation\Validator
+     */
+    protected $validator;
+
+    /**
      * Get the validator instance for the request.
      *
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
-     *
-     * @return ValidatorContract
+     * @return \Illuminate\Contracts\Validation\Validator
      */
     protected function getValidatorInstance()
     {
+        if ($this->validator) {
+            return $this->validator;
+        }
+
         $factory = $this->container->make(ValidationFactory::class);
 
         if (method_exists($this, 'validator')) {
@@ -77,82 +88,48 @@ class FormRequest extends Request implements ValidatesWhenResolved
             $this->withValidator($validator);
         }
 
-        return $validator;
+        $this->setValidator($validator);
+
+        return $this->validator;
     }
 
     /**
      * Create the default validator instance.
      *
-     * @param ValidationFactory $factory
-     *
-     * @return Validator
+     * @param  \Illuminate\Contracts\Validation\Factory  $factory
+     * @return \Illuminate\Contracts\Validation\Validator
      */
     protected function createDefaultValidator(ValidationFactory $factory)
     {
         return $factory->make(
-            $this->validationData(),
-            $this->container->call([$this, 'rules']),
-            $this->messages(),
-            $this->attributes()
+            $this->validationData(), $this->container->call([$this, 'rules']),
+            $this->messages(), $this->attributes()
         );
     }
 
     /**
-     * Get the data to be validated from the request.
+     * Get data to be validated from the request.
      *
      * @return array
      */
-    protected function validationData()
+    public function validationData()
     {
         return $this->all();
     }
 
     /**
-     * Get custom messages for validator errors.
-     *
-     * @return array
-     */
-    public function messages()
-    {
-        return [];
-    }
-
-    /**
-     * Get custom attributes for validator errors.
-     *
-     * @return array
-     */
-    public function attributes()
-    {
-        return [];
-    }
-
-    /**
-     * Get the validated data from the request.
-     *
-     * @return array
-     */
-    public function validated()
-    {
-        $rules = $this->container->call([$this, 'rules']);
-
-        return $this->only(collect($rules)->keys()->map(function ($rule) {
-            return Str::contains($rule, '.') ? explode('.', $rule)[0] : $rule;
-        })->unique()->toArray());
-    }
-
-    /**
      * Handle a failed validation attempt.
      *
-     * @param Validator $validator
+     * @param  \Illuminate\Contracts\Validation\Validator  $validator
+     * @return void
      *
-     * @throws ValidationException
+     * @throws \Illuminate\Validation\ValidationException
      */
     protected function failedValidation(Validator $validator)
     {
         throw (new ValidationException($validator))
-            ->errorBag($this->errorBag)
-            ->redirectTo($this->getRedirectUrl());
+                    ->errorBag($this->errorBag)
+                    ->redirectTo($this->getRedirectUrl());
     }
 
     /**
@@ -186,26 +163,68 @@ class FormRequest extends Request implements ValidatesWhenResolved
             return $this->container->call([$this, 'authorize']);
         }
 
-        return false;
+        return true;
     }
 
     /**
      * Handle a failed authorization attempt.
      *
-     * @throws AuthorizationException
+     * @return void
      *
-     * @return AuthorizationException
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     protected function failedAuthorization()
     {
-        throw new AuthorizationException('This action is unauthorized.');
+        throw new AuthorizationException;
     }
 
     /**
-     * Set the redirector instance.
+     * Get the validated data from the request.
      *
-     * @param Redirector $redirector
+     * @return array
+     */
+    public function validated()
+    {
+        return $this->validator->validated();
+    }
+
+    /**
+     * Get custom messages for validator errors.
      *
+     * @return array
+     */
+    public function messages()
+    {
+        return [];
+    }
+
+    /**
+     * Get custom attributes for validator errors.
+     *
+     * @return array
+     */
+    public function attributes()
+    {
+        return [];
+    }
+
+    /**
+     * Set the Validator instance.
+     *
+     * @param  \Illuminate\Contracts\Validation\Validator  $validator
+     * @return $this
+     */
+    public function setValidator(Validator $validator)
+    {
+        $this->validator = $validator;
+
+        return $this;
+    }
+
+    /**
+     * Set the Redirector instance.
+     *
+     * @param  \Illuminate\Routing\Redirector  $redirector
      * @return $this
      */
     public function setRedirector(Redirector $redirector)
@@ -216,10 +235,9 @@ class FormRequest extends Request implements ValidatesWhenResolved
     }
 
     /**
-     * Set the container.
+     * Set the container implementation.
      *
-     * @param Container $container
-     *
+     * @param  \Illuminate\Contracts\Container\Container  $container
      * @return $this
      */
     public function setContainer(Container $container)

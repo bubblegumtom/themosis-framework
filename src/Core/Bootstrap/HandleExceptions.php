@@ -4,17 +4,16 @@ namespace Themosis\Core\Bootstrap;
 
 use ErrorException;
 use Exception;
-use Illuminate\Contracts\Debug\ExceptionHandler as ExceptionHandlerContract;
+use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Contracts\Foundation\Application;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\ErrorHandler\Error\FatalError;
 use Throwable;
 
-class ExceptionHandler
+class HandleExceptions
 {
     /**
      * Reserved memory so that errors can be displayed properly on memory exhaustion.
-     *
      * @var string
      */
     public static $reservedMemory;
@@ -166,6 +165,6 @@ class ExceptionHandler
      */
     protected function getExceptionHandler()
     {
-        return $this->app->make(ExceptionHandlerContract::class);
+        return $this->app->make(ExceptionHandler::class);
     }
 }

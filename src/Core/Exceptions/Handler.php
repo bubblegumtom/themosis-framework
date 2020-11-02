@@ -19,6 +19,8 @@ use Illuminate\Routing\Router;
 use Illuminate\Session\TokenMismatchException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\View;
+use Illuminate\Support\Reflector;
 use Illuminate\Support\Traits\ReflectsClosures;
 use Illuminate\Support\ViewErrorBag;
 use Illuminate\Validation\ValidationException;
@@ -129,7 +131,7 @@ class Handler implements ExceptionHandlerContract
      * Register a reportable callback.
      *
      * @param  callable  $reportUsing
-     * @return \Illuminate\Foundation\Exceptions\ReportableHandler
+     * @return \Themosis\Core\Exceptions\ReportableHandler
      */
     public function reportable(callable $reportUsing)
     {
@@ -208,7 +210,7 @@ class Handler implements ExceptionHandlerContract
             return;
         }
 
-        if (is_callable($reportCallable = [$e, 'report'])) {
+        if (Reflector::isCallable($reportCallable = [$e, 'report'])) {
             if ($this->container->call($reportCallable) !== false) {
                 return;
             }

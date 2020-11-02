@@ -23,7 +23,8 @@ class PackageDiscoverCommand extends Command
 
     /**
      * Execute the console command.
-     * @param \Themosis\Core\PackageManifest $manifest
+     *
+     * @param  \Themosis\Core\PackageManifest  $manifest
      * @return void
      */
     public function handle(PackageManifest $manifest)

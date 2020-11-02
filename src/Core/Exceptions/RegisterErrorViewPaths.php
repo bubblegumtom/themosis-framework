@@ -8,6 +8,7 @@ class RegisterErrorViewPaths
 {
     /**
      * Register the error view paths.
+     *
      * @return void
      */
     public function __invoke()

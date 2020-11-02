@@ -8,9 +8,10 @@ use Illuminate\Http\Request;
 class SetRequestForConsole
 {
     /**
-     * Setup the request for console application.
+     * Bootstrap the given application.
      *
-     * @param Application $app
+     * @param  \Illuminate\Contracts\Foundation\Application  $app
+     * @return void
      */
     public function bootstrap(Application $app)
     {
@@ -23,17 +24,12 @@ class SetRequestForConsole
         if (isset($components['path'])) {
             $server = array_merge($server, [
                 'SCRIPT_FILENAME' => $components['path'],
-                'SCRIPT_NAME' => $components['path']
+                'SCRIPT_NAME' => $components['path'],
             ]);
         }
 
         $app->instance('request', Request::create(
-            $uri,
-            'GET',
-            [],
-            [],
-            [],
-            $server
+            $uri, 'GET', [], [], [], $server
         ));
     }
 }

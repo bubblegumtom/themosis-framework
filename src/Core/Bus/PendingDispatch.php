@@ -7,10 +7,25 @@ use Illuminate\Contracts\Bus\Dispatcher;
 class PendingDispatch
 {
     /**
+     * The job.
+     *
      * @var mixed
      */
     protected $job;
 
+    /**
+     * Indicates if the job should be dispatched immediately after sending the response.
+     *
+     * @var bool
+     */
+    protected $afterResponse = false;
+
+    /**
+     * Create a new pending job dispatch.
+     *
+     * @param  mixed  $job
+     * @return void
+     */
     public function __construct($job)
     {
         $this->job = $job;
@@ -19,8 +34,7 @@ class PendingDispatch
     /**
      * Set the desired connection for the job.
      *
-     * @param string|null $connection
-     *
+     * @param  string|null  $connection
      * @return $this
      */
     public function onConnection($connection)
@@ -33,8 +47,7 @@ class PendingDispatch
     /**
      * Set the desired queue for the job.
      *
-     * @param string|null $queue
-     *
+     * @param  string|null  $queue
      * @return $this
      */
     public function onQueue($queue)
@@ -47,8 +60,7 @@ class PendingDispatch
     /**
      * Set the desired connection for the chain.
      *
-     * @param string|null $connection
-     *
+     * @param  string|null  $connection
      * @return $this
      */
     public function allOnConnection($connection)
@@ -61,8 +73,7 @@ class PendingDispatch
     /**
      * Set the desired queue for the chain.
      *
-     * @param string|null $queue
-     *
+     * @param  string|null  $queue
      * @return $this
      */
     public function allOnQueue($queue)
@@ -75,8 +86,7 @@ class PendingDispatch
     /**
      * Set the desired delay for the job.
      *
-     * @param \DateTime|int|null $delay
-     *
+     * @param  \DateTimeInterface|\DateInterval|int|null  $delay
      * @return $this
      */
     public function delay($delay)
@@ -89,8 +99,7 @@ class PendingDispatch
     /**
      * Set the jobs that should run if this job is successful.
      *
-     * @param array $chain
-     *
+     * @param  array  $chain
      * @return $this
      */
     public function chain($chain)
@@ -101,10 +110,42 @@ class PendingDispatch
     }
 
     /**
+     * Indicate that the job should be dispatched after the response is sent to the browser.
+     *
+     * @return $this
+     */
+    public function afterResponse()
+    {
+        $this->afterResponse = true;
+
+        return $this;
+    }
+
+    /**
+     * Dynamically proxy methods to the underlying job.
+     *
+     * @param  string  $method
+     * @param  array  $parameters
+     * @return $this
+     */
+    public function __call($method, $parameters)
+    {
+        $this->job->{$method}(...$parameters);
+
+        return $this;
+    }
+
+    /**
      * Handle the object's destruction.
+     *
+     * @return void
      */
     public function __destruct()
     {
-        app(Dispatcher::class)->dispatch($this->job);
+        if ($this->afterResponse) {
+            app(Dispatcher::class)->dispatchAfterResponse($this->job);
+        } else {
+            app(Dispatcher::class)->dispatch($this->job);
+        }
     }
 }

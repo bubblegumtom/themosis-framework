@@ -2,42 +2,85 @@
 
 namespace Themosis\Core\Support\Providers;
 
+use Closure;
 use Illuminate\Contracts\Routing\UrlGenerator;
 use Illuminate\Support\ServiceProvider;
 use Themosis\Route\Router;
+use Illuminate\Support\Traits\ForwardsCalls;
 
+/**
+ * @mixin \Illuminate\Routing\Router
+ */
 class RouteServiceProvider extends ServiceProvider
 {
+    use ForwardsCalls;
+
     /**
-     * Controller namespace used by loaded routes.
+     * The controller namespace for the application.
      *
-     * @var string
+     * @var string|null
      */
     protected $namespace;
 
     /**
-     * Bootstrap the service.
+     * The callback that should be used to load the application's routes.
+     *
+     * @var \Closure|null
      */
-    public function boot()
+    protected $loadRoutesUsing;
+
+    /**
+     * Register any application services.
+     *
+     * @return void
+     */
+    public function register()
     {
-        $this->setControllerNamespace();
+        $this->booted(function () {
+            $this->setRootControllerNamespace();
 
-        if ($this->app->routesAreCached()) {
-            $this->loadCachedRoutes();
-        } else {
-            $this->loadRoutes();
+            if ($this->routesAreCached()) {
+                $this->loadCachedRoutes();
+            } else {
+                $this->loadRoutes();
 
-            $this->app->booted(function () {
-                $this->app['router']->getRoutes()->refreshNameLookups();
-                $this->app['router']->getRoutes()->refreshActionLookups();
-            });
-        }
+                $this->app->booted(function () {
+                    $this->app['router']->getRoutes()->refreshNameLookups();
+                    $this->app['router']->getRoutes()->refreshActionLookups();
+                });
+            }
+        });
     }
 
     /**
-     * Set the controller namespace.
+     * Bootstrap any application services.
+     *
+     * @return void
      */
-    protected function setControllerNamespace()
+    public function boot()
+    {
+        //
+    }
+
+    /**
+     * Register the callback that will be used to load the application's routes.
+     *
+     * @param  \Closure  $routesCallback
+     * @return $this
+     */
+    protected function routes(Closure $routesCallback)
+    {
+        $this->loadRoutesUsing = $routesCallback;
+
+        return $this;
+    }
+
+    /**
+     * Set the root controller namespace for the application.
+     *
+     * @return void
+     */
+    protected function setRootControllerNamespace()
     {
         if (! is_null($this->namespace)) {
             $this->app[UrlGenerator::class]->setRootControllerNamespace($this->namespace);
@@ -45,7 +88,19 @@ class RouteServiceProvider extends ServiceProvider
     }
 
     /**
+     * Determine if the application routes are cached.
+     *
+     * @return bool
+     */
+    protected function routesAreCached()
+    {
+        return $this->app->routesAreCached();
+    }
+
+    /**
      * Load the cached routes for the application.
+     *
+     * @return void
      */
     protected function loadCachedRoutes()
     {
@@ -55,11 +110,15 @@ class RouteServiceProvider extends ServiceProvider
     }
 
     /**
-     * Load routes.
+     * Load the application routes.
+     *
+     * @return void
      */
     protected function loadRoutes()
     {
-        if (method_exists($this, 'map')) {
+        if (! is_null($this->loadRoutesUsing)) {
+            $this->app->call($this->loadRoutesUsing);
+        } elseif (method_exists($this, 'map')) {
             $this->app->call([$this, 'map']);
         }
     }
@@ -67,21 +126,14 @@ class RouteServiceProvider extends ServiceProvider
     /**
      * Pass dynamic methods onto the router instance.
      *
-     * @param string $method
-     * @param array  $parameters
-     *
+     * @param  string  $method
+     * @param  array  $parameters
      * @return mixed
      */
     public function __call($method, $parameters)
     {
-        return call_user_func_array(
-            [$this->app->make(Router::class), $method],
-            $parameters
+        return $this->forwardCallTo(
+            $this->app->make(Router::class), $method, $parameters
         );
-    }
-
-    public function register()
-    {
-        //
     }
 }

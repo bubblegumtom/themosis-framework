@@ -10,12 +10,11 @@ trait AuthorizesRequests
     /**
      * Authorize a given action for the current user.
      *
-     * @param mixed       $ability
-     * @param mixed|array $arguments
+     * @param  mixed  $ability
+     * @param  mixed|array  $arguments
+     * @return \Illuminate\Auth\Access\Response
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
-     *
-     * @return \Illuminate\Auth\Access\Response
      */
     public function authorize($ability, $arguments = [])
     {
@@ -27,13 +26,12 @@ trait AuthorizesRequests
     /**
      * Authorize a given action for a user.
      *
-     * @param \Illuminate\Contracts\Auth\Authenticatable|mixed $user
-     * @param mixed                                            $ability
-     * @param mixed|array                                      $arguments
+     * @param  \Illuminate\Contracts\Auth\Authenticatable|mixed  $user
+     * @param  mixed  $ability
+     * @param  mixed|array  $arguments
+     * @return \Illuminate\Auth\Access\Response
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
-     *
-     * @return \Illuminate\Auth\Access\Response
      */
     public function authorizeForUser($user, $ability, $arguments = [])
     {
@@ -43,35 +41,10 @@ trait AuthorizesRequests
     }
 
     /**
-     * Authorize a resource action based on the incoming request.
-     *
-     * @param string                        $model
-     * @param string|null                   $parameter
-     * @param array                         $options
-     * @param \Illuminate\Http\Request|null $request
-     */
-    public function authorizeResource($model, $parameter = null, array $options = [], $request = null)
-    {
-        $parameter = $parameter ?: Str::snake(class_basename($model));
-
-        $middleware = [];
-
-        foreach ($this->resourceAbilityMap() as $method => $ability) {
-            $modelName = in_array($method, $this->resourceMethodsWithoutModels()) ? $model : $parameter;
-            $middleware["can:{$ability},{$modelName}"][] = $method;
-        }
-
-        foreach ($middleware as $middlewareName => $methods) {
-            $this->middleware($middlewareName, $options)->only($methods);
-        }
-    }
-
-    /**
      * Guesses the ability's name if it wasn't provided.
      *
-     * @param mixed       $ability
-     * @param mixed|array $arguments
-     *
+     * @param  mixed  $ability
+     * @param  mixed|array  $arguments
      * @return array
      */
     protected function parseAbilityAndArguments($ability, $arguments)
@@ -88,8 +61,7 @@ trait AuthorizesRequests
     /**
      * Normalize the ability name that has been guessed from the method name.
      *
-     * @param string $ability
-     *
+     * @param  string  $ability
      * @return string
      */
     protected function normalizeGuessedAbilityName($ability)
@@ -100,6 +72,32 @@ trait AuthorizesRequests
     }
 
     /**
+     * Authorize a resource action based on the incoming request.
+     *
+     * @param  string  $model
+     * @param  string|null  $parameter
+     * @param  array  $options
+     * @param  \Illuminate\Http\Request|null  $request
+     * @return void
+     */
+    public function authorizeResource($model, $parameter = null, array $options = [], $request = null)
+    {
+        $parameter = $parameter ?: Str::snake(class_basename($model));
+
+        $middleware = [];
+
+        foreach ($this->resourceAbilityMap() as $method => $ability) {
+            $modelName = in_array($method, $this->resourceMethodsWithoutModels()) ? $model : $parameter;
+
+            $middleware["can:{$ability},{$modelName}"][] = $method;
+        }
+
+        foreach ($middleware as $middlewareName => $methods) {
+            $this->middleware($middlewareName, $options)->only($methods);
+        }
+    }
+
+    /**
      * Get the map of resource methods to ability names.
      *
      * @return array
@@ -107,6 +105,7 @@ trait AuthorizesRequests
     protected function resourceAbilityMap()
     {
         return [
+            'index' => 'viewAny',
             'show' => 'view',
             'create' => 'create',
             'store' => 'create',

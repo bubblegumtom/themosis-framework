@@ -7,9 +7,10 @@ use Illuminate\Contracts\Foundation\Application;
 class RegisterProviders
 {
     /**
-     * Bootstrap application service providers.
+     * Bootstrap the given application.
      *
-     * @param Application $app
+     * @param  \Illuminate\Contracts\Foundation\Application  $app
+     * @return void
      */
     public function bootstrap(Application $app)
     {

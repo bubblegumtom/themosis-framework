@@ -3,14 +3,16 @@
 namespace Themosis\Core\Providers;
 
 use Illuminate\Contracts\Validation\ValidatesWhenResolved;
+use Themosis\Core\Http\FormRequest;
 use Illuminate\Routing\Redirector;
 use Illuminate\Support\ServiceProvider;
-use Themosis\Core\Http\FormRequest;
 
 class FormRequestServiceProvider extends ServiceProvider
 {
     /**
      * Register the service provider.
+     *
+     * @return void
      */
     public function register()
     {
@@ -18,7 +20,9 @@ class FormRequestServiceProvider extends ServiceProvider
     }
 
     /**
-     * Bootstrap the service.
+     * Bootstrap the application services.
+     *
+     * @return void
      */
     public function boot()
     {

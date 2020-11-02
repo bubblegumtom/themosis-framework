@@ -7,25 +7,27 @@ use Illuminate\Support\ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider
 {
+    /**
+     * The policy mappings for the application.
+     *
+     * @var array
+     */
     protected $policies = [];
 
     /**
      * Register the application's policies.
+     *
+     * @return void
      */
     public function registerPolicies()
     {
-        foreach ($this->policies as $key => $value) {
+        foreach ($this->policies() as $key => $value) {
             Gate::policy($key, $value);
         }
     }
 
-    public function register()
-    {
-        //
-    }
-
     /**
-     * Return the policies defined by the provider.
+     * Get the policies defined on the provider.
      *
      * @return array
      */

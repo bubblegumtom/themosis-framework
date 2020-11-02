@@ -2,20 +2,16 @@
 
 namespace Themosis\Core\Providers;
 
+use Illuminate\Contracts\Support\DeferrableProvider;
 use Illuminate\Support\Composer;
 use Illuminate\Support\ServiceProvider;
 
-class ComposerServiceProvider extends ServiceProvider
+class ComposerServiceProvider extends ServiceProvider implements DeferrableProvider
 {
     /**
-     * Defer the loading of the provider.
-     *
-     * @var bool
-     */
-    protected $defer = true;
-
-    /**
      * Register the service provider.
+     *
+     * @return void
      */
     public function register()
     {
@@ -25,7 +21,7 @@ class ComposerServiceProvider extends ServiceProvider
     }
 
     /**
-     * Return list of services provided by the provider.
+     * Get the services provided by the provider.
      *
      * @return array
      */

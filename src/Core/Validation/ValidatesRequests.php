@@ -3,9 +3,7 @@
 namespace Themosis\Core\Validation;
 
 use Illuminate\Contracts\Validation\Factory;
-use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 trait ValidatesRequests
@@ -13,12 +11,11 @@ trait ValidatesRequests
     /**
      * Run the validation routine against the given validator.
      *
-     * @param Validator|array $validator
-     * @param Request|null    $request
-     *
-     * @throws ValidationException
-     *
+     * @param  \Illuminate\Contracts\Validation\Validator|array  $validator
+     * @param  \Illuminate\Http\Request|null  $request
      * @return array
+     *
+     * @throws \Illuminate\Validation\ValidationException
      */
     public function validateWith($validator, Request $request = null)
     {
@@ -28,74 +25,54 @@ trait ValidatesRequests
             $validator = $this->getValidationFactory()->make($request->all(), $validator);
         }
 
-        /** @var \Illuminate\Validation\Validator $validator */
-        $validator->validate();
-
-        return $this->extractInputFromRules($request, $validator->getRules());
+        return $validator->validate();
     }
 
     /**
      * Validate the given request with the given rules.
      *
-     * @param Request $request
-     * @param array   $rules
-     * @param array   $messages
-     * @param array   $attributes
-     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  array  $rules
+     * @param  array  $messages
+     * @param  array  $customAttributes
      * @return array
+     *
+     * @throws \Illuminate\Validation\ValidationException
      */
-    public function validate(Request $request, array $rules, array $messages = [], array $attributes = [])
+    public function validate(Request $request, array $rules,
+                             array $messages = [], array $customAttributes = [])
     {
-        $this->getValidationFactory()
-            ->make($request->all(), $rules, $messages, $attributes)
-            ->validate();
-
-        return $this->extractInputFromRules($request, $rules);
+        return $this->getValidationFactory()->make(
+            $request->all(), $rules, $messages, $customAttributes
+        )->validate();
     }
 
     /**
-     * @param $errorBag
-     * @param Request $request
-     * @param array   $rules
-     * @param array   $messages
-     * @param array   $attributes
+     * Validate the given request with the given rules.
      *
-     * @throws ValidationException
-     *
+     * @param  string  $errorBag
+     * @param  \Illuminate\Http\Request  $request
+     * @param  array  $rules
+     * @param  array  $messages
+     * @param  array  $customAttributes
      * @return array
+     *
+     * @throws \Illuminate\Validation\ValidationException
      */
-    public function validateWithBag(
-        $errorBag,
-        Request $request,
-        array $rules,
-        array $messages = [],
-        array $attributes = []
-    ) {
+    public function validateWithBag($errorBag, Request $request, array $rules,
+                                    array $messages = [], array $customAttributes = [])
+    {
         try {
-            return $this->validate($request, $rules, $messages, $attributes);
+            return $this->validate($request, $rules, $messages, $customAttributes);
         } catch (ValidationException $e) {
             $e->errorBag = $errorBag;
+
             throw $e;
         }
     }
 
     /**
-     * Get the request input based on the given validation rules.
-     *
-     * @param Request $request
-     * @param array   $rules
-     *
-     * @return array
-     */
-    protected function extractInputFromRules(Request $request, array $rules)
-    {
-        return $request->only(collect($rules)->keys()->map(function ($rule) {
-            return Str::contains($rule, '.') ? explode('.', $rule)[0] : $rule;
-        })->unique()->toArray());
-    }
-
-    /**
-     * Get the validation factory.
+     * Get a validation factory instance.
      *
      * @return \Illuminate\Contracts\Validation\Factory
      */

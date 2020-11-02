@@ -2,9 +2,9 @@
 
 namespace Themosis\Core\Support\Providers;
 
+use Themosis\Core\Events\DiscoverEvents;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
-use Themosis\Core\Events\DiscoverEvents;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -24,20 +24,44 @@ class EventServiceProvider extends ServiceProvider
 
     /**
      * Register the application's event listeners.
+     *
+     * @return void
+     */
+    public function register()
+    {
+        $this->booting(function () {
+            $events = $this->getEvents();
+
+            foreach ($events as $event => $listeners) {
+                foreach (array_unique($listeners) as $listener) {
+                    Event::listen($event, $listener);
+                }
+            }
+
+            foreach ($this->subscribe as $subscriber) {
+                Event::subscribe($subscriber);
+            }
+        });
+    }
+
+    /**
+     * Boot any application services.
+     *
+     * @return void
      */
     public function boot()
     {
-        $events = $this->getEvents();
+        //
+    }
 
-        foreach ($events as $event => $listeners) {
-            foreach (array_unique($listeners) as $listener) {
-                Event::listen($event, $listener);
-            }
-        }
-
-        foreach ($this->subscribe as $subscriber) {
-            Event::subscribe($subscriber);
-        }
+    /**
+     * Get the events and handlers.
+     *
+     * @return array
+     */
+    public function listens()
+    {
+        return $this->listen;
     }
 
     /**
@@ -60,25 +84,15 @@ class EventServiceProvider extends ServiceProvider
     }
 
     /**
-     * Return the events and handlers.
-     *
-     * @return array
-     */
-    public function listens()
-    {
-        return $this->listen;
-    }
-
-    /**
-     * Return the discovered events for the application.
+     * Get the discovered events for the application.
      *
      * @return array
      */
     protected function discoveredEvents()
     {
         return $this->shouldDiscoverEvents()
-            ? $this->discoverEvents()
-            : [];
+                    ? $this->discoverEvents()
+                    : [];
     }
 
     /**
@@ -99,15 +113,15 @@ class EventServiceProvider extends ServiceProvider
     public function discoverEvents()
     {
         return collect($this->discoverEventsWithin())
-            ->reject(function ($directory) {
-                return ! is_dir($directory);
-            })
-            ->reduce(function ($discovered, $directory) {
-                return array_merge_recursive(
-                    $discovered,
-                    DiscoverEvents::within($directory, base_path())
-                );
-            }, []);
+                    ->reject(function ($directory) {
+                        return ! is_dir($directory);
+                    })
+                    ->reduce(function ($discovered, $directory) {
+                        return array_merge_recursive(
+                            $discovered,
+                            DiscoverEvents::within($directory, base_path())
+                        );
+                    }, []);
     }
 
     /**
@@ -118,7 +132,7 @@ class EventServiceProvider extends ServiceProvider
     protected function discoverEventsWithin()
     {
         return [
-            $this->app->path('Listeners')
+            $this->app->path('Listeners'),
         ];
     }
 }

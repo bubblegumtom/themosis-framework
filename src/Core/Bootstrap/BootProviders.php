@@ -7,9 +7,10 @@ use Illuminate\Contracts\Foundation\Application;
 class BootProviders
 {
     /**
-     * Bootstrap the application.
+     * Bootstrap the given application.
      *
-     * @param Application $app
+     * @param  \Illuminate\Contracts\Foundation\Application  $app
+     * @return void
      */
     public function bootstrap(Application $app)
     {

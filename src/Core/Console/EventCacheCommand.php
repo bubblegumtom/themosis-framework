@@ -9,6 +9,7 @@ class EventCacheCommand extends Command
 {
     /**
      * The name and signature of the console command.
+     *
      * @var string
      */
     protected $signature = 'event:cache';
@@ -25,7 +26,7 @@ class EventCacheCommand extends Command
      *
      * @return mixed
      */
-	public function handle()
+    public function handle()
     {
         $this->call('event:clear');
 
@@ -42,14 +43,14 @@ class EventCacheCommand extends Command
      *
      * @return array
      */
-	protected function getEvents()
+    protected function getEvents()
     {
         $events = [];
 
         foreach ($this->laravel->getProviders(EventServiceProvider::class) as $provider) {
             $providerEvents = array_merge_recursive($provider->shouldDiscoverEvents() ? $provider->discoverEvents() : [], $provider->listens());
 
-	        $events[get_class($provider)] = $providerEvents;
+            $events[get_class($provider)] = $providerEvents;
         }
 
         return $events;

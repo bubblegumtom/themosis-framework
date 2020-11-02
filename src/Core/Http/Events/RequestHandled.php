@@ -5,20 +5,25 @@ namespace Themosis\Core\Http\Events;
 class RequestHandled
 {
     /**
+     * The request instance.
+     *
      * @var \Illuminate\Http\Request
      */
     public $request;
 
     /**
+     * The response instance.
+     *
      * @var \Illuminate\Http\Response
      */
     public $response;
 
     /**
-     * RequestHandled constructor.
+     * Create a new event instance.
      *
-     * @param \Illuminate\Http\Request  $request
-     * @param \Illuminate\Http\Response $response
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\Response  $response
+     * @return void
      */
     public function __construct($request, $response)
     {

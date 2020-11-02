@@ -11,25 +11,15 @@ class Mix
     /**
      * Get the path to a versioned Mix file.
      *
-     * @param string $path
-     * @param string $manifestDirectory
+     * @param  string  $path
+     * @param  string  $manifestDirectory
+     * @return \Illuminate\Support\HtmlString|string
      *
      * @throws \Exception
-     *
-     * @return \Illuminate\Support\HtmlString|string
      */
     public function __invoke($path, $manifestDirectory = '')
     {
         static $manifests = [];
-
-        // Default to the users theme if available, otherwise the public path
-        if (! $manifestDirectory && function_exists('wp_get_theme')) {
-            $manifestDirectory = '/content/themes/'.wp_get_theme()->stylesheet.'/dist';
-        }
-
-        if ($manifestDirectory == '/') {
-            $manifestDirectory = '';
-        }
 
         if (! Str::startsWith($path, '/')) {
             $path = "/{$path}";
@@ -39,7 +29,7 @@ class Mix
             $manifestDirectory = "/{$manifestDirectory}";
         }
 
-        if (file_exists(public_path($manifestDirectory.'/hot'))) {
+        if (is_file(public_path($manifestDirectory.'/hot'))) {
             $url = rtrim(file_get_contents(public_path($manifestDirectory.'/hot')));
 
             if (Str::startsWith($url, ['http://', 'https://'])) {
@@ -52,7 +42,7 @@ class Mix
         $manifestPath = public_path($manifestDirectory.'/mix-manifest.json');
 
         if (! isset($manifests[$manifestPath])) {
-            if (! file_exists($manifestPath)) {
+            if (! is_file($manifestPath)) {
                 throw new Exception('The Mix manifest does not exist.');
             }
 
