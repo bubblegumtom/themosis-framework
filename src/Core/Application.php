@@ -5,6 +5,7 @@ namespace Themosis\Core;
 use Closure;
 use Composer\Autoload\ClassLoader;
 use Illuminate\Container\Container;
+use Illuminate\Contracts\Config\Repository;
 use Illuminate\Contracts\Foundation\Application as ApplicationContract;
 use Illuminate\Contracts\Foundation\CachesConfiguration;
 use Illuminate\Contracts\Foundation\CachesRoutes;
@@ -16,6 +17,7 @@ use Illuminate\Log\LogServiceProvider;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Env;
+use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use RuntimeException;
 use Symfony\Component\Finder\Finder;
@@ -25,7 +27,8 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Themosis\Core\Bootstrap\LoadEnvironmentVariables;
-use Themosis\Core\Support\Providers\RouteServiceProvider;
+use Themosis\Core\Events\LocaleUpdated;
+use Themosis\Route\RouteServiceProvider;
 use const DIRECTORY_SEPARATOR;
 
 class Application extends Container implements ApplicationContract, CachesConfiguration, CachesRoutes, HttpKernelInterface
@@ -1420,6 +1423,9 @@ class Application extends Container implements ApplicationContract, CachesConfig
         foreach ([
                      'action' => [\Themosis\Hook\ActionBuilder::class],
                      'ajax' => [\Themosis\Ajax\Ajax::class],
+                     'asset' => [
+                         \Themosis\Asset\Factory::class,
+                     ],
                      'filter' => [
                          \Themosis\Hook\FilterBuilder::class
                      ],

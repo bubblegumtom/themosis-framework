@@ -5,10 +5,10 @@ namespace Themosis\Core\Console;
 use Closure;
 use Illuminate\Console\Command;
 use Illuminate\Routing\Route;
-use Illuminate\Routing\Router;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Symfony\Component\Console\Input\InputOption;
+use Themosis\Route\Router;
 
 class RouteListCommand extends Command
 {

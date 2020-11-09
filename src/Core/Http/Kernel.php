@@ -6,10 +6,10 @@ use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Http\Kernel as KernelContract;
 use Illuminate\Routing\Pipeline;
-use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Facade;
 use InvalidArgumentException;
 use Themosis\Core\Http\Events\RequestHandled;
+use Themosis\Route\Router;
 use Throwable;
 
 class Kernel implements KernelContract
