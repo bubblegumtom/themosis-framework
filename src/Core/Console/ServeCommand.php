@@ -33,9 +33,7 @@ class ServeCommand extends Command
 
     /**
      * Execute the console command.
-     *
      * @return int
-     *
      * @throws \Exception
      */
     public function handle()
@@ -45,14 +43,14 @@ class ServeCommand extends Command
         $this->line("<info>Starting Laravel development server:</info> http://{$this->host()}:{$this->port()}");
 
         $environmentFile = $this->option('env')
-                            ? base_path('.env').'.'.$this->option('env')
-                            : base_path('.env');
+            ? base_path('.env') . '.' . $this->option('env')
+            : base_path('.env');
 
         $hasEnvironment = file_exists($environmentFile);
 
         $environmentLastModified = $hasEnvironment
-                            ? filemtime($environmentFile)
-                            : now()->addDays(30)->getTimestamp();
+            ? filemtime($environmentFile)
+            : now()->addDays(30)->getTimestamp();
 
         $process = $this->startProcess();
 
@@ -61,7 +59,7 @@ class ServeCommand extends Command
                 clearstatcache(false, $environmentFile);
             }
 
-            if (! $this->option('no-reload') &&
+            if (!$this->option('no-reload') &&
                 $hasEnvironment &&
                 filemtime($environmentFile) > $environmentLastModified) {
                 $environmentLastModified = filemtime($environmentFile);
@@ -89,7 +87,6 @@ class ServeCommand extends Command
 
     /**
      * Start a new server process.
-     *
      * @return \Symfony\Component\Process\Process
      */
     protected function startProcess()
@@ -100,8 +97,8 @@ class ServeCommand extends Command
             }
 
             return in_array($key, ['APP_ENV', 'LARAVEL_SAIL'])
-                    ? [$key => $value]
-                    : [$key => false];
+                ? [$key => $value]
+                : [$key => false];
         })->all());
 
         $process->start(function ($type, $buffer) {
@@ -113,7 +110,6 @@ class ServeCommand extends Command
 
     /**
      * Get the full server command.
-     *
      * @return array
      */
     protected function serverCommand()
@@ -121,7 +117,7 @@ class ServeCommand extends Command
         return [
             (new PhpExecutableFinder)->find(false),
             '-S',
-            $this->host().':'.$this->port(),
+            $this->host() . ':' . $this->port(),
             base_path('server.php'),
         ];
     }
@@ -156,7 +152,7 @@ class ServeCommand extends Command
     protected function canTryAnotherPort()
     {
         return is_null($this->input->getOption('port')) &&
-               ($this->input->getOption('tries') > $this->portOffset);
+            ($this->input->getOption('tries') > $this->portOffset);
     }
 
     /**

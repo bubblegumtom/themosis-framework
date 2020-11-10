@@ -3,8 +3,8 @@
 namespace Themosis\Core\Console;
 
 use Illuminate\Console\Command;
-use Themosis\Core\Support\Providers\EventServiceProvider;
 use Illuminate\Support\Str;
+use Themosis\Core\Support\Providers\EventServiceProvider;
 
 class EventGenerateCommand extends Command
 {
@@ -24,7 +24,6 @@ class EventGenerateCommand extends Command
 
     /**
      * Execute the console command.
-     *
      * @return void
      */
     public function handle()
@@ -43,11 +42,11 @@ class EventGenerateCommand extends Command
     /**
      * Make the event and listeners for the given event.
      *
-     * @param  string  $event
-     * @param  array  $listeners
+     * @param string $event
+     * @param array  $listeners
      * @return void
      */
-    protected function makeEventAndListeners($event, $listeners)
+	protected function makeEventAndListeners($event, $listeners)
     {
         if (! Str::contains($event, '\\')) {
             return;
@@ -61,18 +60,18 @@ class EventGenerateCommand extends Command
     /**
      * Make the listeners for the given event.
      *
-     * @param  string  $event
-     * @param  array  $listeners
+     * @param string $event
+     * @param array  $listeners
      * @return void
      */
-    protected function makeListeners($event, $listeners)
+	protected function makeListeners($event, $listeners)
     {
         foreach ($listeners as $listener) {
-            $listener = preg_replace('/@.+$/', '', $listener);
+	        $listener = preg_replace('/@.+$/', '', $listener);
 
-            $this->callSilent('make:listener', array_filter(
-                ['name' => $listener, '--event' => $event]
-            ));
+	        $this->callSilent('make:listener', array_filter(
+		        ['name' => $listener, '--event' => $event]
+	        ));
         }
     }
 }
